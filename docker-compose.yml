@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  app:
+    image: 'spring_back_end'
+    ports:
+      - "8080:8091"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  frontend:
+    image: frontend-energy
+    build:
+      context: /Users/ana.iepure/Documents/ds-project -backend/energy-system
+      dockerfile: /Users/ana.iepure/Documents/ds-project -backend/energy-system/Dockerfile
+    depends_on:
+      - app
+    container_name: frontend
+    ports:
+      - 4300:4300
+    expose:
+      - 4200
+    networks:
+      - DS_SQL_SPRING
+
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+networks:
+    DS_SQL_SPRING:
+      driver: bridge
